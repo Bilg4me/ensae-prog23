@@ -31,16 +31,45 @@ class Graph:
         dist: numeric (int or float), optional
             Distance between node1 and node2 on the edge. Default is 1.
         """
-        raise NotImplementedError
-    
+
+        if not (node1 in self.nodes):
+            self.nodes.append(node1)
+            self.graph[node1] = []
+        if not (node2 in self.nodes):
+            self.nodes.append(node2)
+            self.graph[node2] = []
+        self.graph[node1] += [(node2, power_min, dist)]
+        self.graph[node2] += [(node1, power_min, dist)]
+        
+        
+        self.nb_edges += 1
+        self.nb_nodes = len(self.nodes)
 
     def get_path_with_power(self, src, dest, power):
         raise NotImplementedError
-    
+
+    def neighbors(self, node):
+        return [neighbor for (neighbor, p, d) in self.graph[node]]
 
     def connected_components(self):
-        raise NotImplementedError
+        visited = { node : False for node in self.nodes }
+        connex_comp = []
+        #parcours en profondeur d'une composante connexe
+        def dfs(comp):
+            if comp == []:
+                return []
+            elif visited[comp[0]] : # le premier element a été visité
+                return dfs(comp[1:])
+            else:
+                visited[comp[0]] = True
+                return [ comp[0] ] + dfs(self.neighbors(comp[0]) + comp[1:])
 
+        for node in self.nodes :
+            if not visited[node]:
+               connex_comp += [dfs([node])]
+               
+        return connex_comp
+    
 
     def connected_components_set(self):
         """
@@ -76,4 +105,13 @@ def graph_from_file(filename):
     G: Graph
         An object of the class Graph with the graph from file_name.
     """
-    raise NotImplementedError
+    with open(filename, "r") as file:
+        network = file.readlines()
+    nb_nodes = int(network[0].split(' ')[0])
+    
+    g = Graph([])
+    for line in network[1:] :
+        line = line.split(' ')
+        [node1,node2,pow_min] = [line[0], line[1], int(line[2])]
+        g.add_edge(node1,node2,pow_min)
+    return g
