@@ -1,4 +1,5 @@
 from math import inf
+from graphviz import Digraph
 
 def tous_devant(x, list):
     return [[x] + l for l in list]
@@ -87,8 +88,10 @@ class Graph:
             return min_path
         
         all_paths = all_paths(src,dest,[])
-        print(all_paths)
-        return min_dist(all_paths)
+        #print(all_paths)
+        min_path = min_dist(all_paths)
+        #self.visualization(min_path, 'green')
+        return min_path
 
     def neighbors(self, node):
         return [neighbor for (neighbor, p, d) in self.graph[node]]
@@ -121,6 +124,7 @@ class Graph:
         return set(map(frozenset, self.connected_components()))
 
     def min_power(self, src, dest):
+
         """
         Should return path, min_power. 
 
@@ -148,9 +152,29 @@ class Graph:
             if pow <= min_p:
                 min_p = pow
                 min_path = path
+        
+        #self.visualization(min_path, 'red')
 
         return (min_path,min_p)
 
+    def visualization(self, path = [], my_color = 'black'):
+        g = Digraph(format = 'png')
+        def suivis(x,y):
+            return ([x,y] or [y,x]) in [ [path[k],path[k+1]] for k in range(len(path) -1 )]
+        if path != []:
+            for node in self.nodes:
+                for (n,p,d) in self.graph[node]:
+                    color = 'black'
+                    if suivis(node,n):
+                        color = my_color
+                    g.edge(str(node) , str(n) ,label = "p{}d{}".format(p,d) , color= color)
+        else:
+            for node in self.nodes:
+                for (n,p,d) in self.graph[node]:
+                    g.edge(str(node) , str(n) ,label = "p{}d{}".format(p,d) , color='black')
+
+        g.render("render/Graphe.gv", view=True)
+                
 def graph_from_file(filename):
     """
     Reads a text file and returns the graph as an object of the Graph class.

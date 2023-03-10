@@ -5,19 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python : fichier actif dans un terminal intégré",
+            "name": "Python : fichier actif",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python : fichier actif dans un terminal externe",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "externalTerminal",
             "justMyCode": true
         }
     ]
