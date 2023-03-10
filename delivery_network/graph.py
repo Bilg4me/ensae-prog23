@@ -1,3 +1,8 @@
+from math import inf
+
+def tous_devant(x, list):
+    return [[x] + l for l in list]
+
 class Graph:
     def __init__(self, nodes=[]):
         self.nodes = nodes
@@ -48,25 +53,16 @@ class Graph:
         if comp_connex == []:
             return None
         
-        
-        def tous_devant(x, list):
-            return [[x] + l for l in list]
-
-        
-        def all_paths(node1, node2, to_visit):
+        def all_paths(node1, node2, visited):
             if node1 == node2:
                 return [[node2]]
             
             else:
-                print(to_visit)
-                to_visit.pop(to_visit.index(node1))
+                visited.append(node1)
                 result=[]
-                intersection = [n for n in self.neighbors(node1) if n in to_visit]
-                for (node,p_min,d) in self.graph[node1]:
-                    if node in intersection and power >= p_min:
-                        
-                        result += tous_devant(node1 , all_paths(node, node2, to_visit))
-                
+                for (node,p_min,d) in self.graph[node1] : 
+                    if node not in visited and power >= p_min :
+                        result += tous_devant(node1 , all_paths(node, node2, visited))
                 return result
 
         
@@ -76,21 +72,23 @@ class Graph:
         
         def min_dist(all_paths):
             # path = [1,2,3]
-            min_d = 0
-            min_path = []
+            min_d = inf
+            min_path = None
             for path in all_paths:
                 dist = 0
                 for k in range(len(path) - 1):
                     for (n,p,d) in self.graph[path[k]]:
-                        if n == self.graph[path[k+1]][0]:
+                        if n == path[k+1]:
                             dist += d
                 if dist <= min_d:
                     min_d = dist
                     min_path = path
 
-            return (min_d, min_path)
+            return min_path
         
-        return min_dist(all_paths(src,dest,comp_connex))
+        all_paths = all_paths(src,dest,[])
+        print(all_paths)
+        return min_dist(all_paths)
 
     def neighbors(self, node):
         return [neighbor for (neighbor, p, d) in self.graph[node]]
@@ -127,8 +125,31 @@ class Graph:
         Should return path, min_power. 
 
         """
-        raise NotImplementedError
+        def all_paths(node1, node2, visited):
+            if node1 == node2:
+                return [[node2]]
+            
+            else:
+                visited.append(node1)
+                result=[]
+                for (node,p_min,d) in self.graph[node1] : 
+                    if node not in visited :
+                        result += tous_devant(node1 , all_paths(node, node2, visited))
+                return result
+            
+        min_p = inf
+        min_path = []
+        for path in all_paths(src,dest,[]):
+            pow = 0
+            for k in range(len(path) - 1):
+                for (n,p,d) in self.graph[path[k]]:
+                    if n == path[k+1]:
+                        pow = max(pow, p)
+            if pow <= min_p:
+                min_p = pow
+                min_path = path
 
+        return (min_path,min_p)
 
 def graph_from_file(filename):
     """
@@ -167,8 +188,3 @@ def graph_from_file(filename):
             
     return g
 
-
-
-g = graph_from_file("c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/network.03.in")
-print(g)
-g.get_path_with_power(1,2, 14)
