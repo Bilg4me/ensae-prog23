@@ -156,6 +156,32 @@ class Graph:
         #self.visualization(min_path, 'red')
 
         return (min_path,min_p)
+    
+    def min_power_kruskal(self, src, dest):
+        A = kruskal(self)
+        def all_paths(node1, node2, visited):
+            if node1 == node2:
+                return [[node2]]
+            
+            else:
+                visited.append(node1)
+                result=[]
+                for (node,p_min,d) in A.graph[node1] : 
+                    if node not in visited :
+                        result += tous_devant(node1 , all_paths(node, node2, visited))
+                return result
+
+        min_path = all_paths(src,dest,[])[0]
+        print(min_path)
+        pow = 0
+        for k in range(len(min_path) - 1):
+            for (n,p,d) in A.graph[min_path[k]]:
+                if n == min_path[k+1]:
+                    pow = max(pow, p)
+                    
+        #self.visualization(min_path, 'red')
+        return (min_path,pow)
+
 
     def visualization(self, path = [], my_color = 'black'):
         g = Digraph(format = 'png')
@@ -211,4 +237,23 @@ def graph_from_file(filename):
             g.add_edge(node1, node2, pow_min)
             
     return g
+
+def kruskal(G) :
+    A = Graph(G.nodes)
+    sets = { v : {v}  for v in G.nodes }
+    edges = []
+    for node in G.nodes:
+        for (n,p,d) in G.graph[node]:
+            if (n,node,p) not in edges:
+                edges.append((node,n,p))
+
+    edges.sort(key=lambda x : x[-1])
+
+    for (u, v, p) in edges :
+        if sets[u] != sets[v] :
+            A.add_edge(u,v,p)
+            set = sets[u].union(sets[v])
+            for a in set:
+                sets[a] = set
+    return A
 
