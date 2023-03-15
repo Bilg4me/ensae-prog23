@@ -2,6 +2,7 @@ from math import inf
 from graphviz import Digraph
 
 def tous_devant(x, list):
+    """ puts the element x as the head of every list of the list of list """
     return [[x] + l for l in list]
 
 class Graph:
@@ -22,6 +23,7 @@ class Graph:
         return output
 
     def add_edge(self, node1, node2, power_min, dist=1):
+
         """
         Adds an edge to the graph. Graphs are not oriented, hence an edge is added to the adjacency list of both end nodes. 
 
@@ -35,6 +37,7 @@ class Graph:
             Minimum power on this edge
         dist: numeric (int or float), optional
             Distance between node1 and node2 on the edge. Default is 1.
+
         """
 
         if not (node1 in self.nodes):
@@ -49,11 +52,16 @@ class Graph:
         self.nb_edges += 1
 
     def get_path_with_power(self, src, dest, power):
+        
+        """ Find the shortest path in term of distance among all the path convenient for the power """
+
         comps = self.connected_components()
         comp_connex = [l for l in comps if (src in l) and (dest in l)][0]
         if comp_connex == []:
             return None
         
+        """ aux function that gives by recursion all the paths going from node1 to node2 and convient for the power given"""
+
         def all_paths(node1, node2, visited):
             if node1 == node2:
                 return [[node2]]
@@ -65,16 +73,12 @@ class Graph:
                     if node not in visited and power >= p_min :
                         result += tous_devant(node1 , all_paths(node, node2, visited))
                 return result
-
         
-        """
-        Finding the shortest path in term of distance among all the path convenient for the power
-        """
-        
+        """ aux function giving the shortest path (in term of distance) among a list of path """
         def min_dist(all_paths):
-            # path = [1,2,3]
             min_d = inf
-            min_path = None
+            min_path = []
+
             for path in all_paths:
                 dist = 0
                 for k in range(len(path) - 1):
@@ -87,11 +91,8 @@ class Graph:
 
             return min_path
         
-        all_paths = all_paths(src,dest,[])
-        #print(all_paths)
-        min_path = min_dist(all_paths)
-        #self.visualization(min_path, 'green')
-        return min_path
+        
+        return min_dist(all_paths(src,dest,[]))
 
     def neighbors(self, node):
         return [neighbor for (neighbor, p, d) in self.graph[node]]
@@ -99,12 +100,13 @@ class Graph:
     def connected_components(self):
         visited = {node: False for node in self.nodes}
         connex_comp = []
-        # parcours en profondeur d'une composante connexe
+
+        """ Deep first search to find a connected component """
 
         def dfs(comp):
             if comp == []:
                 return []
-            elif visited[comp[0]]:  # le premier element a été visité
+            elif visited[comp[0]]:  # first element of the component has been visited
                 return dfs(comp[1:])
             else:
                 visited[comp[0]] = True
@@ -126,9 +128,11 @@ class Graph:
     def min_power(self, src, dest):
 
         """
-        Should return path, min_power. 
-
+        Should return path, min_power for a given source (src) and destination (dest)
         """
+        
+        """ aux function that gives by recursion all the paths going from node1 to node2 no matter the power needed """
+
         def all_paths(node1, node2, visited):
             if node1 == node2:
                 return [[node2]]
@@ -154,7 +158,6 @@ class Graph:
                 min_path = path
         
         #self.visualization(min_path, 'red')
-
         return (min_path,min_p)
     
     def min_power_kruskal(self, src, dest):
@@ -172,7 +175,6 @@ class Graph:
                 return result
 
         min_path = all_paths(src,dest,[])[0]
-        print(min_path)
         pow = 0
         for k in range(len(min_path) - 1):
             for (n,p,d) in A.graph[min_path[k]]:
@@ -239,19 +241,21 @@ def graph_from_file(filename):
     return g
 
 def kruskal(G) :
+
+    """ Turning a graph G into a minimal spanning tree with Kruskal algorithm (using Union-Find Structure) """
     A = Graph(G.nodes)
     sets = { v : {v}  for v in G.nodes }
     edges = []
     for node in G.nodes:
         for (n,p,d) in G.graph[node]:
-            if (n,node,p) not in edges:
-                edges.append((node,n,p))
+            if (n,node,p,d) not in edges:
+                edges.append((node,n,p,d))
+    
+    edges.sort(key=lambda x : x[-2]) # sorting edges by increasing power
 
-    edges.sort(key=lambda x : x[-1])
-
-    for (u, v, p) in edges :
+    for (u, v, p, d) in edges :
         if sets[u] != sets[v] :
-            A.add_edge(u,v,p)
+            A.add_edge(u,v,p,d)
             set = sets[u].union(sets[v])
             for a in set:
                 sets[a] = set

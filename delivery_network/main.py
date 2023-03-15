@@ -15,33 +15,46 @@ def timing(f, *args):
 ## Initialisation
 data_path = "c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/"
 file_name = "network.2.in"
-#G = graph_from_file(data_path + file_name)
-
+G = graph_from_file(data_path + file_name)
+# Ouverture de network.2.in -> 82s environ !!!
 
 ## Quelques test
 
-# timing(lambda x : graph_from_file(x), data_path+file_name)
-# timing(G.visualization)
-# timing(G.get_path_with_power, 1,6,1000)
-# Ouverture de network.2.in -> 82s environ !!!
-
-## Ouverture du fichier routes.1.in
-
-# with open(data_path + "routes.1.in", 'r') as file:
-#     routes = file.readlines()
-#     nb_trajets = int(routes[0])
-
-# on va stocker les trajets de la formes (src,dest,utility) en ne prenant que 50 trajets
-
-# trajets =  [list(map(int,line.split(' '))) for line in choices(routes[1:], k=50)]
-
-# perf_trajets_gpwp = [timing(G.get_path_with_power,src,dest,utility) for (src,dest,utility) in trajets]
-# perf_trajets_mp = [timing(G.min_power,src,dest) for (src,dest,utility) in trajets]
+# print("temps d'execution pour ouvrir " + file_name + " : " + str(timing(graph_from_file, data_path+file_name)))
+# print("temps d'execution pour visualiser le graphe " + file_name + " : " + str(timing(G.visualization)))
+# print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 sur " + file_name + " : " + str(timing(G.get_path_with_power, 1,6,1000)))
+print("temps d'execution pour obtenir la puissance minimal pour aller de 1 vers 6 sur " + file_name + " : " + str(timing(G.min_power, 1,6)))
+print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 (avec kruskal) sur " + file_name + " : " + str(timing(G.min_power_kruskal, 1,6)))
+print("temps d'execution pour kruskal le graphe " + file_name + " : " + str(timing(kruskal,G)))
+# A = kruskal(G)
+# print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 (avec kruskal) sur " + file_name + " : " + str(timing(A.get_path_with_power, 1,6,1000)))
 
 
-# print("temps d'execution moyen de get_path_with_power:", mean(perf_trajets_gpwp))
-# print("temps d'execution moyen de min_power:", mean(perf_trajets_mp))
+def output_routes(x):
 
-print("temps d'execution pour ouvrir " + file_name + " " + str(timing(graph_from_file, data_path+file_name)))
+    ## Lecture du graphe
+    file_name = "network.{}.in".format(x)
+    G = graph_from_file(data_path + file_name)
 
-#Résoudre le problème : ModuleNotFoundError: No module named 'graph' (Existe uniquement sur Vscode)
+    ## Ouverture du fichier routes.x.in
+
+    with open(data_path + "routes.{}.in".format(x), 'r') as file:
+        routes = file.readlines()
+        nb_trajets = int(routes[0])
+
+    # on va stocker les trajets de la forme (src,dest,utility) en ne prenant que k trajets
+
+    trajets =  [list(map(int,line.split(' '))) for line in choices(routes[1:], k=5)]
+
+    #perf_trajets_gpwp = [timing(G.get_path_with_power,src,dest,utility) for (src,dest,utility) in trajets]
+    perf_trajets_mp = [timing(G.min_power,src,dest) for (src,dest,utility) in trajets]
+
+
+    #print("temps d'execution moyen de get_path_with_power sur network.{}:".format(x), mean(perf_trajets_gpwp))
+    print("temps d'execution moyen de min_power sur network.{}:".format(x) , mean(perf_trajets_mp))
+
+    ## Création du fichier routes.x.out
+    tous_les_trajets = [list(map(int,line.split(' '))) for line in routes[1:]]
+    with open(data_path + "output/routes.{}.out".format(x), 'w') as file:
+        text_lines = [ str(G.min_power_kruskal(src,dest)[1]) + "\n" for (src,dest,utility) in tous_les_trajets] 
+        file.writelines(text_lines)
