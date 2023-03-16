@@ -11,6 +11,7 @@ class Graph:
         self.graph = dict([(n, []) for n in nodes])
         self.nb_nodes = len(nodes)
         self.nb_edges = 0
+        self.minimal_spanning_tree = None
 
     def __str__(self):
         """Prints the graph as a list of neighbors for each node (one per line)"""
@@ -27,7 +28,7 @@ class Graph:
         """
         Adds an edge to the graph. Graphs are not oriented, hence an edge is added to the adjacency list of both end nodes. 
 
-        Parameters: 
+        Parameters:
         -----------
         node1: NodeType
             First end (node) of the edge
@@ -46,8 +47,8 @@ class Graph:
         if not (node2 in self.nodes):
             self.nodes.append(node2)
             self.graph[node2] = []
-        self.graph[node1] += [(node2, power_min, dist)]
-        self.graph[node2] += [(node1, power_min, dist)]
+        self.graph[node1].append((node2, power_min, dist))
+        self.graph[node2].append((node1, power_min, dist))
 
         self.nb_edges += 1
 
@@ -60,39 +61,7 @@ class Graph:
         if comp_connex == []:
             return None
         
-        """ aux function that gives by recursion all the paths going from node1 to node2 and convient for the power given"""
-
-        def all_paths(node1, node2, visited):
-            if node1 == node2:
-                return [[node2]]
-            
-            else:
-                visited.append(node1)
-                result=[]
-                for (node,p_min,d) in self.graph[node1] : 
-                    if node not in visited and power >= p_min :
-                        result += tous_devant(node1 , all_paths(node, node2, visited))
-                return result
-        
-        """ aux function giving the shortest path (in term of distance) among a list of path """
-        def min_dist(all_paths):
-            min_d = inf
-            min_path = []
-
-            for path in all_paths:
-                dist = 0
-                for k in range(len(path) - 1):
-                    for (n,p,d) in self.graph[path[k]]:
-                        if n == path[k+1]:
-                            dist += d
-                if dist <= min_d:
-                    min_d = dist
-                    min_path = path
-
-            return min_path
-        
-        
-        return min_dist(all_paths(src,dest,[]))
+        return min_dist(all_paths(src,dest,[],power,self),self)
 
     def neighbors(self, node):
         return [neighbor for (neighbor, p, d) in self.graph[node]]
@@ -130,58 +99,32 @@ class Graph:
         """
         Should return path, min_power for a given source (src) and destination (dest)
         """
-        
-        """ aux function that gives by recursion all the paths going from node1 to node2 no matter the power needed """
 
-        def all_paths(node1, node2, visited):
-            if node1 == node2:
-                return [[node2]]
-            
-            else:
-                visited.append(node1)
-                result=[]
-                for (node,p_min,d) in self.graph[node1] : 
-                    if node not in visited :
-                        result += tous_devant(node1 , all_paths(node, node2, visited))
-                return result
-            
         min_p = inf
         min_path = []
-        for path in all_paths(src,dest,[]):
-            pow = 0
-            for k in range(len(path) - 1):
-                for (n,p,d) in self.graph[path[k]]:
-                    if n == path[k+1]:
-                        pow = max(pow, p)
-            if pow <= min_p:
-                min_p = pow
-                min_path = path
-        
-        #self.visualization(min_path, 'red')
-        return (min_path,min_p)
+        while True:
+            min_p /= 2
+            path = self.get_path_with_power(src, dest, min_p)
+            if path == None: 
+                break
+            
+            min_path = path
+            min_p = power_path(min_path, self)
+
+        self.visualization(min_path, 'red')
+        return (min_path,2*min_p) 
     
     def min_power_kruskal(self, src, dest):
-        A = kruskal(self)
-        def all_paths(node1, node2, visited):
-            if node1 == node2:
-                return [[node2]]
-            
-            else:
-                visited.append(node1)
-                result=[]
-                for (node,p_min,d) in A.graph[node1] : 
-                    if node not in visited :
-                        result += tous_devant(node1 , all_paths(node, node2, visited))
-                return result
+        A = self.minimal_spanning_tree
 
-        min_path = all_paths(src,dest,[])[0]
+        min_path = all_paths(src,dest,[],inf,self)[0]
         pow = 0
         for k in range(len(min_path) - 1):
             for (n,p,d) in A.graph[min_path[k]]:
                 if n == min_path[k+1]:
                     pow = max(pow, p)
                     
-        #self.visualization(min_path, 'red')
+        self.visualization(min_path, 'red')
         return (min_path,pow)
 
 
@@ -202,7 +145,18 @@ class Graph:
                     g.edge(str(node) , str(n) ,label = "p{}d{}".format(p,d) , color='black')
 
         g.render("render/Graphe.gv", view=True)
-                
+
+
+## Fonction auxiliaires
+
+def power_path(path,G):
+            pow = 0
+            for k in range(len(path) - 1):
+                for (n,p,d) in G.graph[path[k]]:
+                    if n == path[k+1]:
+                        pow = max(pow, p)
+            return pow
+
 def graph_from_file(filename):
     """
     Reads a text file and returns the graph as an object of the Graph class.
@@ -237,8 +191,41 @@ def graph_from_file(filename):
         else:
             [node1, node2, pow_min] = [int(line[0]), int(line[1]), int(line[2])]
             g.add_edge(node1, node2, pow_min)
-            
+    
+    #g.minimal_spanning_tree = kruskal(g)
     return g
+
+def all_paths(node1, node2, visited, power, G):
+    """ aux function that gives by recursion all the paths going from node1 to node2 and convient for the power given"""
+    if node1 == node2:
+        return [[node2]]
+            
+    else:
+        visited.append(node1)
+        result=[]
+        for (node,p_min,d) in G.graph[node1] : 
+            if node not in visited and power >= p_min :
+                result += tous_devant(node1 , all_paths(node, node2, visited, power, G))
+        return result
+
+
+def min_dist(all_paths,G):
+    min_d = inf
+    min_path = []
+
+    for path in all_paths:
+        dist = 0
+        for k in range(len(path) - 1):
+            for (n,p,d) in G.graph[path[k]]:
+                if n == path[k+1]:
+                    dist += d
+        if dist <= min_d:
+            min_d = dist
+            min_path = path
+    if min_path == []:
+        return None
+    
+    return min_path
 
 def kruskal(G) :
 
@@ -260,4 +247,3 @@ def kruskal(G) :
             for a in set:
                 sets[a] = set
     return A
-

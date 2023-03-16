@@ -7,12 +7,12 @@ import unittest   # The test framework
 
 class Test_MinimalPower(unittest.TestCase):
     def test_network0(self):
-        g = graph_from_file("c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/delivery_network/input/network.00.in")
+        g = graph_from_file("c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/network.00.in")
         self.assertEqual(g.min_power(1, 4)[1], 11)
         self.assertEqual(g.min_power(2, 4)[1], 10)
 
     def test_network1(self):
-        g = graph_from_file("c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/delivery_network/input/network.04.in")
+        g = graph_from_file("c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/network.04.in")
         self.assertEqual(g.min_power(1, 4)[1], 4)
 
 if __name__ == '__main__':
