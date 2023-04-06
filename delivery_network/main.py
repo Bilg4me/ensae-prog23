@@ -3,7 +3,7 @@ from graph import Graph, graph_from_file, kruskal
 from time import perf_counter
 from numpy import mean
 from random import choices
-
+from trucks import *
 
 ## Fonction de test des performances
 def timing(f, *args):
@@ -14,10 +14,10 @@ def timing(f, *args):
 
 
 ## Initialisation
-data_path = "/home/brome/Documents/GitHub/ensae-prog23/tests/input/"
-file_name = "network.1.in"
-G = graph_from_file(data_path + file_name)
-print(G)
+# data_path = "C:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/"
+# file_name = "network.1.in"
+# G = graph_from_file(data_path + file_name)
+# print(G)
 # Ouverture de network.2.in -> 82s environ !!!
 
 ## Quelques test
@@ -61,3 +61,25 @@ def output_routes(x):
         text_lines = [ str(G.min_power_kruskal(src,dest)[1]) + "\n" for (src,dest,utility) in tous_les_trajets] 
         file.writelines(text_lines)
 
+
+## Test des fonctions d'allocation de camions
+x = 1
+t = 2
+B = 10000
+
+# Comparaison des deux méthodes en temps d'exécution
+def compare_allocation(x,t,B):
+    print(f"Allocation gloutonne pour network.{x} avec truck.{t} et {B} euros : {timing(allocation_gloutonne,B,x,t)} secondes")
+    print(f"Allocation optimale pour network.{x} avec truck.{t} et {B} euros : {timing(allocation_optimale,B,x,t)} secondes")
+
+# Test de la méthode gloutonne sur différents inputs
+# X = [1]
+# T = [0,1,2]
+# B = [100000,200000,300000,400000,500000, 600000, 700000, 800000, 900000, 1000000]
+
+# for x in X:
+#     for t in T:
+#         for b in B:
+#             describe_allocation(x,t,b)
+
+describe_allocation(x,t,B)
