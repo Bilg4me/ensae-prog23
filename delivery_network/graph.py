@@ -93,7 +93,7 @@ class Graph:
         For instance, for network01.in: {frozenset({1, 2, 3}), frozenset({4, 5, 6, 7})}
         """
         return set(map(frozenset, self.connected_components()))
-
+    
     def min_power(self, src, dest):
 
         """
@@ -101,18 +101,28 @@ class Graph:
         """
 
         min_p = inf
-        min_path = []
-        while True:
-            min_p /= 2
-            path = self.get_path_with_power(src, dest, min_p)
-            if path == None:
-                break
+        min_path = self.get_path_with_power(src, dest, min_p)
+        
+        if min_path == None:
+            return None
+        
+        else:
+            b = power_path(min_path, self)
+            if b == 0:
+                return (min_path, b)
+            a = 0
+            while a < b - 1:
+                c = (a + b) // 2
+                path = self.get_path_with_power(src, dest, c)
+                if path == None: 
+                    a = c
+                else:
+                    min_path = path
+                    b = power_path(min_path, self)
+                    
 
-            min_path = path
-            min_p = power_path(min_path, self)
-
-        #self.visualization(min_path, 'red')
-        return (min_path,2*min_p)
+            self.visualization(min_path, 'red')
+            return (min_path, b)
 
     def min_power_kruskal(self, src, dest):
         if self.minimal_spanning_tree == None:
@@ -151,13 +161,13 @@ class Graph:
 
 ## Fonction auxiliaires
 
-def power_path(path,G):
-            pow = 0
-            for k in range(len(path) - 1):
-                for (n,p,d) in G.graph[path[k]]:
-                    if n == path[k+1]:
-                        pow = max(pow, p)
-            return pow
+def power_path(path,G): # renvoi la puissance minimale requise pour un chemin dans un graphe G
+    pow = 0
+    for k in range(len(path) - 1):
+        for (n,p,d) in G.graph[path[k]]:
+            if n == path[k+1]:
+                pow = max(pow, p)
+    return pow
 
 def graph_from_file(filename):
     """
