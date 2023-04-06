@@ -12,20 +12,10 @@ def timing(f, *args):
     t2 = perf_counter()
     return t2-t1
 
-# Fonction lecture de fichier
-
-def routes_to_trajets(x):
-    with open(data_path + "routes.{}.in".format(x), 'r') as file:
-        routes = file.readlines()
-        nb_trajets = int(routes[0])
-
-    # on va stocker les trajets de la forme (src,dest,utility)
-    trajets =  [list(map(int,line.split(' '))) for line in routes[1:]]
-    return trajets
 
 ## Initialisation
-data_path = "c:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/"
-file_name = "network.2.in"
+data_path = "/home/brome/Documents/GitHub/ensae-prog23/tests/input/"
+file_name = "network.1.in"
 G = graph_from_file(data_path + file_name)
 print(G)
 # Ouverture de network.2.in -> 82s environ !!!
