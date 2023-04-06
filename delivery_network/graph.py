@@ -121,7 +121,7 @@ class Graph:
                     b = power_path(min_path, self)
                     
 
-            self.visualization(min_path, 'red')
+            #self.visualization(min_path, 'red')
             return (min_path, b)
 
     def min_power_kruskal(self, src, dest):
@@ -156,7 +156,7 @@ class Graph:
                 for (n,p,d) in self.graph[node]:
                     g.edge(str(node) , str(n) ,label = "p{}d{}".format(p,d) , color='black')
 
-        #g.render("render/Graphe.gv", view=True)
+        #g.render("render/Graphe.gv", view=True, engine='neato')
 
 
 ## Fonction auxiliaires
@@ -237,7 +237,7 @@ def min_dist(all_paths,G):
             min_path = path
     if min_path == []:
         return None
-
+    G.visualization(min_path, "green")
     return min_path
 
 def kruskal(G) :
