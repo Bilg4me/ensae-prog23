@@ -15,7 +15,7 @@ def timing(f, *args):
 
 # Initialisation
 data_path = "C:/Users/Bilal/Documents/ENSAE/Projet Programmation/ensae-prog23/tests/input/"
-file_name = "network.1.in"
+file_name = "network.2.in"
 G = graph_from_file(data_path + file_name)
 print(G)
 
@@ -26,12 +26,12 @@ print(G)
 print("temps d'execution pour ouvrir " + file_name + " : " + str(timing(graph_from_file, data_path+file_name)))
 print("temps d'execution pour lire " + file_name + " : " + str(timing(routes_to_trajets, 2)))
 
-# print("temps d'execution pour visualiser le graphe " + file_name + " : " + str(timing(G.visualization)))
-# print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 sur " + file_name + " : " + str(timing(G.get_path_with_power, 1,6,1000)))
-# print("temps d'execution pour obtenir la puissance minimal pour aller de 1 vers 6 sur " + file_name + " : " + str(timing(G.min_power, 1,6)))
-# print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 (avec kruskal) sur " + file_name + " : " + str(timing(G.min_power_kruskal, 1,6)))
-# print("temps d'execution pour kruskal le graphe " + file_name + " : " + str(timing(kruskal,G)))
-# print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 (avec kruskal) sur " + file_name + " : " + str(timing(G.minimal_spanning_tree.get_path_with_power, 1,6,1000)))
+print("temps d'execution pour visualiser le graphe " + file_name + " : " + str(timing(G.visualization)))
+print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 sur " + file_name + " : " + str(timing(G.get_path_with_power, 1,6,1000)))
+print("temps d'execution pour obtenir la puissance minimal pour aller de 1 vers 6 sur " + file_name + " : " + str(timing(G.min_power, 1,6)))
+print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 (avec kruskal) sur " + file_name + " : " + str(timing(G.min_power_kruskal, 1,6)))
+print("temps d'execution pour kruskal le graphe " + file_name + " : " + str(timing(kruskal,G)))
+print("temps d'execution pour obtenir le plus court chemin de 1 vers 6 avec puissance de 1000 (avec kruskal) sur " + file_name + " : " + str(timing(G.minimal_spanning_tree.get_path_with_power, 1,6,1000)))
 
 
 
@@ -49,7 +49,7 @@ def output_routes(x):
 
     # on va stocker les trajets de la forme (src,dest,utility) en ne prenant que k trajets
 
-    trajets =  [list(map(int,line.split(' '))) for line in choices(routes[1:], k=1)]
+    trajets =  [list(map(int,line.split(' '))) for line in choices(routes[1:], k=50)]
 
     perf_trajets_gpwp = [timing(G.get_path_with_power,src,dest,utility) for (src,dest,utility) in trajets]
     perf_trajets_mp = [timing(G.min_power,src,dest) for (src,dest,utility) in trajets]
@@ -64,4 +64,3 @@ def output_routes(x):
         text_lines = [ str(G.min_power_kruskal(src,dest)[1]) + "\n" for (src,dest,utility) in tous_les_trajets] 
         file.writelines(text_lines)
 
-output_routes(1)

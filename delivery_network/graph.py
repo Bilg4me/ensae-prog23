@@ -111,14 +111,14 @@ class Graph:
             if b == 0:
                 return (min_path, b)
             a = 0
-            while a < b - 1:
-                c = (a + b) // 2
+            while (b-a) > 1:
+                c = (a + b) / 2
                 path = self.get_path_with_power(src, dest, c)
                 if path == None: 
                     a = c
                 else:
                     min_path = path
-                    b = power_path(min_path, self)
+                    b = min(c,power_path(path,self))
                     
 
             #self.visualization(min_path, 'red')
@@ -156,7 +156,7 @@ class Graph:
                 for (n,p,d) in self.graph[node]:
                     g.edge(str(node) , str(n) ,label = "p{}d{}".format(p,d) , color='black')
 
-        #g.render("render/Graphe.gv", view=True, engine='neato')
+        g.render("render/Graphe.gv", view=True, engine='dot')
 
 
 ## Fonction auxiliaires
@@ -205,7 +205,7 @@ def graph_from_file(filename):
             [node1, node2, pow_min] = [int(line[0]), int(line[1]), int(line[2])]
             g.add_edge(node1, node2, pow_min)
 
-    #g.minimal_spanning_tree = kruskal(g)
+    g.minimal_spanning_tree = kruskal(g)
     return g
 
 def all_paths(node1, node2, visited, power, G):
@@ -237,7 +237,7 @@ def min_dist(all_paths,G):
             min_path = path
     if min_path == []:
         return None
-    G.visualization(min_path, "green")
+    #G.visualization(min_path, "green")
     return min_path
 
 def kruskal(G) :

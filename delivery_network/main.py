@@ -25,4 +25,4 @@ def compare_allocation(x,t,B):
 #             describe_allocation(x,t,b)
 
 describe_allocation(x,t,B)
-
+#compare_allocation(x,t,B)
